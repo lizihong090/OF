@@ -4,11 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ESP 控制面板</title>
+<style>
+  body { font-family: Arial; text-align: center; margin-top: 50px; }
+  button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+  input[type=range] { width: 300px; }
+</style>
 </head>
 <body>
 <h1>ESP 控制面板</h1>
 
-<button id="ledBtn">LED 開</button><br>
+<button id="ledBtn">LED 開</button>
+<br>
 <label for="pwmSlider">PWM: <span id="pwmVal">0</span></label><br>
 <input type="range" id="pwmSlider" min="0" max="1023" value="0">
 
@@ -17,9 +23,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebas
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDoOH_w1cRc90sTr5jMK4Hqkb7dUJhls4o",
+  apiKey: "你的APIKey",
   authDomain: "of11-bf42c.firebaseapp.com",
-  databaseURL: "https://of11-bf42c-default-rtdb.firebaseio.com/",
+  databaseURL: "https://of11-bf42c-default-rtdb.firebaseio.com",
   projectId: "of11-bf42c",
   storageBucket: "of11-bf42c.appspot.com",
   messagingSenderId: "933992597092",

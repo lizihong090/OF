@@ -23,35 +23,26 @@ const ledBtn = document.getElementById("ledBtn");
 const pwmSlider = document.getElementById("pwmSlider");
 const pwmVal = document.getElementById("pwmVal");
 
-let ledState = 0; // 0 = 關, 1 = 開
-
-// 初始化按鈕文字
-function updateLedBtn() {
-  ledBtn.textContent = ledState ? "LED 關" : "LED 開";
+function fetchStatus() {
+  fetch("/status.json").then(r => r.json()).then(json => {
+    pwmSlider.value = json.pwm;
+    pwmVal.textContent = json.pwm;
+    ledBtn.textContent = json.led ? "LED 關" : "LED 開";
+  });
 }
 
-// 更新 JSON 狀態並送出
-function sendStatus() {
-  const json = { led: ledState, pwm: parseInt(pwmSlider.value) };
-  // 用 fetch 更新 JSON（GitHub Pages 不支援寫入，實際上 ESP 可以抓到 json）
-  console.log("JSON:", JSON.stringify(json));
-}
-
-// LED 按鈕事件
 ledBtn.addEventListener("click", () => {
-  ledState = !ledState;
-  updateLedBtn();
-  sendStatus();
+  const url = ledBtn.textContent === "LED 開" ? "/on" : "/off";
+  fetch(url).then(fetchStatus);
 });
 
-// PWM 滑桿事件
 pwmSlider.addEventListener("input", () => {
   pwmVal.textContent = pwmSlider.value;
-  sendStatus();
+  fetch("/pwm?value=" + pwmSlider.value).then(fetchStatus);
 });
 
-// 初始化
-updateLedBtn();
+// 初始抓取
+fetchStatus();
 </script>
 </body>
 </html>

@@ -1,55 +1,42 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP8266 控制面板</title>
-<style>
-  body { font-family: Arial; text-align: center; margin-top: 50px; }
-  button { padding: 10px 20px; font-size: 16px; margin: 10px; }
-  input[type=range] { width: 300px; }
-</style>
-</head>
-<body>
-<h1>ESP8266 控制面板</h1>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
-<button id="ledBtn">LED 開</button>
-<br>
-<label for="pwmSlider">PWM: <span id="pwmVal">0</span></label><br>
-<input type="range" id="pwmSlider" min="0" max="1023" value="0">
+const firebaseConfig = {
+  apiKey: "你的APIKEY",
+  authDomain: "你的PROJECT.firebaseapp.com",
+  databaseURL: "https://你的PROJECT.firebaseio.com",
+  projectId: "你的PROJECT",
+  storageBucket: "你的PROJECT.appspot.com",
+  messagingSenderId: "你的ID",
+  appId: "你的ID"
+};
 
-<script>
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const statusRef = ref(db, 'status');
+
 const ledBtn = document.getElementById("ledBtn");
 const pwmSlider = document.getElementById("pwmSlider");
 const pwmVal = document.getElementById("pwmVal");
 
-function fetchStatus() {
-  fetch("/status.json")
-    .then(r => r.json())
-    .then(json => {
-      pwmSlider.value = json.pwm;
-      pwmVal.textContent = json.pwm;
-      ledBtn.textContent = json.led ? "LED 關" : "LED 開";
-    });
-}
-
-// LED 按鈕事件
-ledBtn.addEventListener("click", () => {
-  const url = ledBtn.textContent === "LED 開" ? "/on" : "/off";
-  fetch(url).then(fetchStatus);
+// 監聽 Firebase 數值變化
+onValue(statusRef, (snapshot) => {
+  const data = snapshot.val();
+  ledBtn.textContent = data.led ? "LED 關" : "LED 開";
+  pwmSlider.value = data.pwm;
+  pwmVal.textContent = data.pwm;
 });
 
-// PWM 滑桿事件
+// 改變 LED
+ledBtn.addEventListener("click", () => {
+  const newLed = ledBtn.textContent === "LED 開" ? 1 : 0;
+  set(ref(db, 'status'), { led: newLed, pwm: pwmSlider.value });
+});
+
+// 改變 PWM
 pwmSlider.addEventListener("input", () => {
   pwmVal.textContent = pwmSlider.value;
-  fetch("/pwm?value=" + pwmSlider.value).then(fetchStatus);
+  set(ref(db, 'status'), { led: ledBtn.textContent === "LED 關" ? 1 : 0, pwm: pwmSlider.value });
 });
-
-// 初始抓取
-fetchStatus();
-
-// 每秒自動刷新狀態
-setInterval(fetchStatus, 1000);
 </script>
-</body>
-</html>

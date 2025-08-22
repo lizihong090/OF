@@ -1,234 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ESP8266 控制面板</title>
-  <style>
-    :root{
-      --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#22c55e; --danger:#ef4444; --warn:#f59e0b;
-      --ring:#3b82f6; --border:#1f2937;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#0b1220,#0f172a);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .wrap{width:100%;max-width:860px}
-    .card{background:rgba(17,24,39,.8);backdrop-filter:blur(6px);border:1px solid var(--border);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden}
-    header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    h1{font-size:20px;letter-spacing:0.2px;margin:0}
-    .muted{color:var(--muted);font-size:12px}
-    .row{display:flex;gap:12px;flex-wrap:wrap}
-    .field{display:flex;align-items:center;gap:8px;background:#0b1020;border:1px solid var(--border);padding:10px 12px;border-radius:12px}
-    input[type="text"]{background:transparent;border:none;outline:none;color:var(--text);min-width:220px}
-    .btn{cursor:pointer;border:none;border-radius:14px;padding:12px 16px;font-weight:600;color:#0b1020;background:var(--text);transition:.2s;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-    .btn:hover{transform:translateY(-1px)}
-    .btn:active{transform:translateY(0)}
-    .btn.acc{background:var(--accent);color:#04210f}
-    .btn.dan{background:var(--danger);color:#240909}
-    .btn.sec{background:#1f2937;color:#e5e7eb}
-    main{padding:20px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    @media (max-width:720px){.grid{grid-template-columns:1fr}}
-    .panel{background:#0b1020;border:1px solid var(--border);border-radius:16px;padding:16px}
-    .panel h3{margin:0 0 10px 0;font-size:16px}
-    .status{display:flex;align-items:center;gap:8px}
-    .dot{width:10px;height:10px;border-radius:999px;background:#64748b}
-    .dot.ok{background:var(--accent)}
-    .dot.bad{background:var(--danger)}
-    .kv{display:grid;grid-template-columns:120px 1fr;gap:6px;font-size:14px}
-    .slider{appearance:none;width:100%;height:8px;border-radius:999px;background:#1f2937;outline:none}
-    .slider::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:999px;background:#e5e7eb;border:2px solid #0b1020;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer}
-    .help{font-size:12px;color:var(--muted)}
-    footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-    code{background:#0b1020;border:1px solid var(--border);padding:2px 6px;border-radius:8px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP8266 控制面板</title>
+<style>
+  body { font-family: Arial; text-align: center; margin-top: 50px; }
+  button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+  input[type=range] { width: 300px; }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card" role="application" aria-label="ESP8266 控制面板">
-      <header>
-        <div>
-          <h1>ESP8266 控制面板</h1>
-          <div class="muted">單檔 HTML｜支援區網或跨網段（需 ESP 開 CORS）</div>
-        </div>
-        <div class="row">
-          <div class="field" title="輸入 ESP8266 的基底位址，例如 http://192.168.1.100">
-            <span class="muted">ESP 位址</span>
-            <input id="baseUrl" type="text" placeholder="http://192.168.1.100" />
-            <button class="btn sec" id="saveUrl">保存</button>
-          </div>
-          <button class="btn" id="pingBtn">測試連線</button>
-        </div>
-      </header>
-      <main>
-        <div class="grid">
-          <section class="panel">
-            <h3>電源 / LED 控制</h3>
-            <div class="row" style="margin-bottom:10px">
-              <button class="btn acc" data-path="/on">開燈 / ON</button>
-              <button class="btn dan" data-path="/off">關燈 / OFF</button>
-              <button class="btn" data-path="/toggle">切換 / TOGGLE</button>
-              <button class="btn sec" id="refresh">更新狀態</button>
-            </div>
-            <div class="status"><span class="dot" id="ledDot"></span><span id="ledText">未知</span></div>
-            <div class="help">預設配合 ESP 端點：<code>/on</code>、<code>/off</code>、<code>/toggle</code>、<code>/status</code>。</div>
-          </section>
+<h1>ESP8266 控制面板</h1>
 
-          <section class="panel">
-            <h3>PWM 亮度</h3>
-            <input id="pwm" class="slider" type="range" min="0" max="1023" step="1" />
-            <div class="row" style="margin-top:8px;align-items:center">
-              <div class="kv">
-                <div>目前值</div>
-                <div><span id="pwmVal">0</span> / 1023</div>
-                <div>端點</div>
-                <div><code>/pwm?value=0-1023</code></div>
-              </div>
-              <button class="btn" id="pwmSend">送出</button>
-            </div>
-            <div class="help">若你的韌體使用不同參數名稱（例如 <code>/pwm?duty=</code>），可在程式裡自行調整。</div>
-          </section>
+<button id="ledBtn">LED 開</button>
+<br>
+<label for="pwmSlider">PWM: <span id="pwmVal">0</span></label><br>
+<input type="range" id="pwmSlider" min="0" max="1023" value="0">
 
-          <section class="panel">
-            <h3>自訂指令</h3>
-            <div class="row" style="margin-bottom:8px">
-              <div class="field" style="flex:1">
-                <span class="muted">路徑</span>
-                <input id="customPath" type="text" placeholder="/relay?ch=1&on=1" />
-              </div>
-              <button class="btn" id="sendCustom">送出</button>
-            </div>
-            <div class="help">將會向 <code>基底位址 + 路徑</code> 發送 HTTP GET。</div>
-          </section>
+<script>
+const ledBtn = document.getElementById("ledBtn");
+const pwmSlider = document.getElementById("pwmSlider");
+const pwmVal = document.getElementById("pwmVal");
 
-          <section class="panel">
-            <h3>狀態</h3>
-            <div class="kv">
-              <div>連線</div>
-              <div id="conn">未測試</div>
-              <div>LED</div>
-              <div id="ledState">未知</div>
-              <div>PWM</div>
-              <div id="pwmState">未知</div>
-            </div>
-            <div class="help">若 ESP 回傳 JSON（例如 <code>{"led":1,"pwm":512}</code>），本面板會自動解析。</div>
-          </section>
-        </div>
-      </main>
-      <footer>
-        <div class="muted">提示：若從電腦開此檔案去請求不同網段的 ESP，可能遇到 CORS。建議把此 HTML 放進 ESP 的 SPIFFS/LittleFS 由同源提供，或在 ESP 韌體中加入 <code>Access-Control-Allow-Origin: *</code>。</div>
-        <div class="muted">© 控制板</div>
-      </footer>
-    </div>
-  </div>
+let ledState = 0; // 0 = 關, 1 = 開
 
-  <script>
-    const qs = (s, p=document) => p.querySelector(s);
-    const qsa = (s, p=document) => [...p.querySelectorAll(s)];
+// 初始化按鈕文字
+function updateLedBtn() {
+  ledBtn.textContent = ledState ? "LED 關" : "LED 開";
+}
 
-    const baseUrlInput = qs('#baseUrl');
-    const saveBtn = qs('#saveUrl');
-    const pingBtn = qs('#pingBtn');
-    const refreshBtn = qs('#refresh');
-    const ledDot = qs('#ledDot');
-    const ledText = qs('#ledText');
-    const conn = qs('#conn');
-    const ledState = qs('#ledState');
-    const pwmState = qs('#pwmState');
-    const pwm = qs('#pwm');
-    const pwmVal = qs('#pwmVal');
-    const pwmSend = qs('#pwmSend');
-    const customPath = qs('#customPath');
-    const sendCustom = qs('#sendCustom');
+// 更新 JSON 狀態並送出
+function sendStatus() {
+  const json = { led: ledState, pwm: parseInt(pwmSlider.value) };
+  // 用 fetch 更新 JSON（GitHub Pages 不支援寫入，實際上 ESP 可以抓到 json）
+  console.log("JSON:", JSON.stringify(json));
+}
 
-    // 初始化 base URL
-    const KEY = 'esp_base_url_v1';
-    function getBase(){ return (baseUrlInput.value || '').trim(); }
-    function setStatus(el, text){ el.textContent = text; }
-    function setDot(ok){ ledDot.classList.remove('ok','bad'); if(ok===true) ledDot.classList.add('ok'); else if(ok===false) ledDot.classList.add('bad'); }
+// LED 按鈕事件
+ledBtn.addEventListener("click", () => {
+  ledState = !ledState;
+  updateLedBtn();
+  sendStatus();
+});
 
-    function saveBase(){ localStorage.setItem(KEY, getBase()); toast('已保存基底位址'); }
-    function loadBase(){ const v = localStorage.getItem(KEY) || 'http://192.168.1.100'; baseUrlInput.value = v; }
+// PWM 滑桿事件
+pwmSlider.addEventListener("input", () => {
+  pwmVal.textContent = pwmSlider.value;
+  sendStatus();
+});
 
-    function urlJoin(base, path){ if(!path.startsWith('/')) path = '/' + path; return base.replace(/\/$/,'') + path; }
-
-    async function httpGet(path){
-      const base = getBase();
-      if(!base){ alert('請先輸入 ESP 位址'); return {ok:false}; }
-      const u = urlJoin(base, path);
-      try{
-        const r = await fetch(u, {method:'GET'});
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        const ct = r.headers.get('content-type')||'';
-        if(ct.includes('application/json')){
-          const j = await r.json();
-          return {ok:true, data:j};
-        }else{
-          const t = await r.text();
-          return {ok:true, data:t};
-        }
-      }catch(e){
-        // 再嘗試 no-cors 當作 fire-and-forget
-        try{ await fetch(u, {method:'GET', mode:'no-cors'}); }catch(_){ }
-        return {ok:false, err:e};
-      }
-    }
-
-    function toast(msg){
-      const n = document.createElement('div');
-      n.textContent = msg; n.style.position='fixed'; n.style.inset='auto 16px 16px auto'; n.style.background='#111827'; n.style.border='1px solid #1f2937'; n.style.padding='10px 12px'; n.style.borderRadius='10px'; n.style.boxShadow='0 8px 20px rgba(0,0,0,.35)';
-      document.body.appendChild(n); setTimeout(()=>n.remove(), 1800);
-    }
-
-    function applyStatus(obj){
-      if(typeof obj !== 'object' || !obj) return;
-      if('led' in obj){ const on = !!(+obj.led); setDot(on); setStatus(ledText, on? 'ON':'OFF'); setStatus(ledState, on? 'ON':'OFF'); }
-      if('pwm' in obj){ const v = +obj.pwm; pwm.value = Math.max(0, Math.min(1023, v)); pwmVal.textContent = pwm.value; setStatus(pwmState, String(v)); }
-    }
-
-    // 綁定
-    saveBtn.addEventListener('click', saveBase);
-    pingBtn.addEventListener('click', async ()=>{
-      setStatus(conn, '測試中…');
-      const r = await httpGet('/status');
-      if(r.ok){ setStatus(conn, '已連線'); applyStatus(r.data); toast('連線成功'); }
-      else { setStatus(conn, '失敗'); toast('無法連線，請檢查 IP / 網路 / CORS'); }
-    });
-
-    refreshBtn.addEventListener('click', async ()=>{
-      const r = await httpGet('/status');
-      if(r.ok){ applyStatus(r.data); toast('狀態已更新'); }
-      else toast('更新失敗');
-    });
-
-    qsa('[data-path]').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const path = btn.getAttribute('data-path');
-        const r = await httpGet(path);
-        if(r.ok && typeof r.data === 'object') applyStatus(r.data);
-        toast('已送出 '+path);
-      });
-    });
-
-    let pwmTimer=null;
-    pwm.addEventListener('input', ()=>{ pwmVal.textContent = pwm.value; if(pwmTimer) clearTimeout(pwmTimer); pwmTimer=setTimeout(()=>pwmSend.click(), 220); });
-    pwmSend.addEventListener('click', async ()=>{
-      const r = await httpGet('/pwm?value='+encodeURIComponent(pwm.value));
-      if(r.ok && typeof r.data === 'object') applyStatus(r.data);
-      toast('PWM 已送出');
-    });
-
-    sendCustom.addEventListener('click', async ()=>{
-      const p = (customPath.value||'').trim();
-      if(!p){ alert('請輸入路徑'); return; }
-      const r = await httpGet(p);
-      if(r.ok && typeof r.data === 'object') applyStatus(r.data);
-      toast('已送出自訂請求');
-    });
-
-    // 啟動
-    loadBase();
-    // 嘗試自動抓一次狀態（不打擾使用者）
-    setTimeout(()=>{ if(getBase()) pingBtn.click(); }, 400);
-  </script>
+// 初始化
+updateLedBtn();
+</script>
 </body>
 </html>

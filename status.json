@@ -1,4 +1,6 @@
 {
-  "led": 1,
-  "pwm": 512
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
 }

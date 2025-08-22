@@ -24,18 +24,22 @@ const pwmSlider = document.getElementById("pwmSlider");
 const pwmVal = document.getElementById("pwmVal");
 
 function fetchStatus() {
-  fetch("/status.json").then(r => r.json()).then(json => {
-    pwmSlider.value = json.pwm;
-    pwmVal.textContent = json.pwm;
-    ledBtn.textContent = json.led ? "LED 關" : "LED 開";
-  });
+  fetch("/status.json")
+    .then(r => r.json())
+    .then(json => {
+      pwmSlider.value = json.pwm;
+      pwmVal.textContent = json.pwm;
+      ledBtn.textContent = json.led ? "LED 關" : "LED 開";
+    });
 }
 
+// LED 按鈕事件
 ledBtn.addEventListener("click", () => {
   const url = ledBtn.textContent === "LED 開" ? "/on" : "/off";
   fetch(url).then(fetchStatus);
 });
 
+// PWM 滑桿事件
 pwmSlider.addEventListener("input", () => {
   pwmVal.textContent = pwmSlider.value;
   fetch("/pwm?value=" + pwmSlider.value).then(fetchStatus);
@@ -43,6 +47,9 @@ pwmSlider.addEventListener("input", () => {
 
 // 初始抓取
 fetchStatus();
+
+// 每秒自動刷新狀態
+setInterval(fetchStatus, 1000);
 </script>
 </body>
 </html>

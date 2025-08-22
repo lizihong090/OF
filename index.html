@@ -1,15 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP 控制面板</title>
+</head>
+<body>
+<h1>ESP 控制面板</h1>
+
+<button id="ledBtn">LED 開</button><br>
+<label for="pwmSlider">PWM: <span id="pwmVal">0</span></label><br>
+<input type="range" id="pwmSlider" min="0" max="1023" value="0">
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "你的APIKEY",
-  authDomain: "你的PROJECT.firebaseapp.com",
-  databaseURL: "https://你的PROJECT.firebaseio.com",
-  projectId: "你的PROJECT",
-  storageBucket: "你的PROJECT.appspot.com",
-  messagingSenderId: "你的ID",
-  appId: "你的ID"
+  apiKey: "AIzaSyDoOH_w1cRc90sTr5jMK4Hqkb7dUJhls4o",
+  authDomain: "of11-bf42c.firebaseapp.com",
+  databaseURL: "https://of11-bf42c-default-rtdb.firebaseio.com/",
+  projectId: "of11-bf42c",
+  storageBucket: "of11-bf42c.appspot.com",
+  messagingSenderId: "933992597092",
+  appId: "1:933992597092:web:d53c1b037855828cc34171"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -23,6 +37,7 @@ const pwmVal = document.getElementById("pwmVal");
 // 監聽 Firebase 數值變化
 onValue(statusRef, (snapshot) => {
   const data = snapshot.val();
+  if(!data) return;
   ledBtn.textContent = data.led ? "LED 關" : "LED 開";
   pwmSlider.value = data.pwm;
   pwmVal.textContent = data.pwm;
@@ -31,12 +46,15 @@ onValue(statusRef, (snapshot) => {
 // 改變 LED
 ledBtn.addEventListener("click", () => {
   const newLed = ledBtn.textContent === "LED 開" ? 1 : 0;
-  set(ref(db, 'status'), { led: newLed, pwm: pwmSlider.value });
+  set(statusRef, { led: newLed, pwm: pwmSlider.value });
 });
 
 // 改變 PWM
 pwmSlider.addEventListener("input", () => {
   pwmVal.textContent = pwmSlider.value;
-  set(ref(db, 'status'), { led: ledBtn.textContent === "LED 關" ? 1 : 0, pwm: pwmSlider.value });
+  const ledState = ledBtn.textContent === "LED 關" ? 1 : 0;
+  set(statusRef, { led: ledState, pwm: pwmSlider.value });
 });
 </script>
+</body>
+</html>

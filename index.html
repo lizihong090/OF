@@ -6,15 +6,19 @@
 <title>ESP 控制面板</title>
 <style>
   body { font-family: Arial; text-align: center; margin-top: 50px; }
-  button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+  .btn-container { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+  button { padding: 10px 20px; font-size: 16px; }
   input[type=range] { width: 300px; }
 </style>
 </head>
 <body>
 <h1>ESP 控制面板</h1>
 
-<button id="ledBtn">LED 開</button>
-<br>
+<div class="btn-container">
+  <button id="ledBtnD4">D4 開</button>
+  <button id="ledBtnD5">D5 開</button>
+</div>
+
 <label for="pwmSlider">PWM: <span id="pwmVal">0</span></label><br>
 <input type="range" id="pwmSlider" min="0" max="1023" value="0">
 
@@ -36,7 +40,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const statusRef = ref(db, 'status');
 
-const ledBtn = document.getElementById("ledBtn");
+const ledBtnD4 = document.getElementById("ledBtnD4");
+const ledBtnD5 = document.getElementById("ledBtnD5");
 const pwmSlider = document.getElementById("pwmSlider");
 const pwmVal = document.getElementById("pwmVal");
 
@@ -44,22 +49,41 @@ const pwmVal = document.getElementById("pwmVal");
 onValue(statusRef, (snapshot) => {
   const data = snapshot.val();
   if(!data) return;
-  ledBtn.textContent = data.led ? "LED 關" : "LED 開";
-  pwmSlider.value = data.pwm;
-  pwmVal.textContent = data.pwm;
+
+  ledBtnD4.textContent = data.ledD4 ? "D4 關" : "D4 開";
+  ledBtnD5.textContent = data.ledD5 ? "D5 關" : "D5 開";
+  pwmSlider.value = data.pwm ?? 0;
+  pwmVal.textContent = data.pwm ?? 0;
 });
 
-// 改變 LED
-ledBtn.addEventListener("click", () => {
-  const newLed = ledBtn.textContent === "LED 開" ? 1 : 0;
-  set(statusRef, { led: newLed, pwm: pwmSlider.value });
+// 改變 D4
+ledBtnD4.addEventListener("click", () => {
+  const newLedD4 = ledBtnD4.textContent === "D4 開" ? 1 : 0;
+  set(statusRef, { 
+    ledD4: newLedD4, 
+    ledD5: ledBtnD5.textContent === "D5 關" ? 1 : 0, 
+    pwm: pwmSlider.value 
+  });
+});
+
+// 改變 D5
+ledBtnD5.addEventListener("click", () => {
+  const newLedD5 = ledBtnD5.textContent === "D5 開" ? 1 : 0;
+  set(statusRef, { 
+    ledD4: ledBtnD4.textContent === "D4 關" ? 1 : 0, 
+    ledD5: newLedD5, 
+    pwm: pwmSlider.value 
+  });
 });
 
 // 改變 PWM
 pwmSlider.addEventListener("input", () => {
   pwmVal.textContent = pwmSlider.value;
-  const ledState = ledBtn.textContent === "LED 關" ? 1 : 0;
-  set(statusRef, { led: ledState, pwm: pwmSlider.value });
+  set(statusRef, { 
+    ledD4: ledBtnD4.textContent === "D4 關" ? 1 : 0, 
+    ledD5: ledBtnD5.textContent === "D5 關" ? 1 : 0, 
+    pwm: pwmSlider.value 
+  });
 });
 </script>
 </body>

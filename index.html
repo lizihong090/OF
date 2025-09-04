@@ -250,7 +250,7 @@ function updateWeatherData(){
   weatherUpdate.textContent=`最後更新: ${formatTime(new Date())}`;
 }
 updateWeatherData();
-setInterval(updateWeatherData, 300000); // 5分鐘更新一次
+setInterval(updateWeatherData, 60000); // 5分鐘更新一次
 
 onValue(statusRef, snapshot=>{
   const data = snapshot.val()||{};

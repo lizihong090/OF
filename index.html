@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP 控制面板 - 云林虎尾</title>
+<title>雲林溫度電腦控制面板 - 虎尾</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
@@ -364,7 +364,7 @@
   <div class="container">
     <header>
       <h1>ESP32 智能控制面板</h1>
-      <p class="subtitle">云林虎尾 - 远程监控与设备控制</p>
+      <p class="subtitle">虎尾 - 遠程監控與設備控制</p>
     </header>
     
     <div class="dashboard">
@@ -372,7 +372,7 @@
       <div class="card weather-card">
         <div class="card-header">
           <div class="card-icon"><i class="fas fa-cloud-sun"></i></div>
-          <h2 class="card-title">云林虎尾天气</h2>
+          <h2 class="card-title">雲林虎尾天氣</h2>
         </div>
         <div class="control-group">
           <div class="weather-info">
@@ -385,18 +385,18 @@
           <div class="weather-details">
             <div class="weather-detail">
               <div class="value"><span id="weatherHumidity">65</span>%</div>
-              <div class="label">湿度</div>
+              <div class="label">濕度</div>
             </div>
             <div class="weather-detail">
               <div class="value"><span id="weatherWind">3.2</span> m/s</div>
-              <div class="label">风速</div>
+              <div class="label">風速</div>
             </div>
             <div class="weather-detail">
               <div class="value" id="weatherPressure">1013</div>
-              <div class="label">气压 (hPa)</div>
+              <div class="label">氣壓 (hPa)</div>
             </div>
           </div>
-          <div class="last-update" id="weatherUpdate">最后更新: 刚刚</div>
+          <div class="last-update" id="weatherUpdate">最後更新: 剛剛/div>
         </div>
       </div>
       
@@ -425,7 +425,7 @@
       <div class="card">
         <div class="card-header">
           <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
-          <h2 class="card-title">D4 輸出控制</h2>
+          <h2 class="card-title">電腦 輸出控制</h2>
         </div>
         <div class="control-group">
           <button id="d4Btn" class="btn btn-primary"><i class="fas fa-power-off"></i> 開啟 D4</button>
@@ -440,12 +440,12 @@
       <div class="card">
         <div class="card-header">
           <div class="card-icon"><i class="fas fa-bolt"></i></div>
-          <h2 class="card-title">D5 脈衝控制</h2>
+          <h2 class="card-title">藍芽 開關控制</h2>
         </div>
         <div class="control-group">
-          <button id="d5Btn" class="btn btn-primary"><i class="fas fa-play"></i> 發送脈衝</button>
+          <button id="d5Btn" class="btn btn-primary"><i class="fas fa-play"></i> 開/關</button>
           <div class="status-indicator">
-            <span>脈衝狀態: </span>
+            <span>狀態: </span>
             <div class="pulse-indicator"></div>
           </div>
         </div>
@@ -470,7 +470,7 @@
     </div>
     
     <footer>
-      <p>ESP32 控制面板 &copy; 2023 | 云林虎尾 - 物聯網設備遠程監控系統</p>
+      <p>控制面板 &copy; ❤️ | 雲林虎尾 - 物聯網設備遠程監控系統</p>
     </footer>
   </div>
 
@@ -532,20 +532,20 @@ function updateWeatherData() {
   
   // 根据温度设置天气描述和图标
   if (temp > 28) {
-    weatherDesc.textContent = "晴朗炎热";
+    weatherDesc.textContent = "晴朗炎熱";
     weatherIcon.className = "fas fa-sun";
   } else if (temp > 25) {
     weatherDesc.textContent = "晴朗";
     weatherIcon.className = "fas fa-cloud-sun";
   } else {
-    weatherDesc.textContent = "多云";
+    weatherDesc.textContent = "多雲";
     weatherIcon.className = "fas fa-cloud";
   }
   
   weatherUpdate.textContent = `最后更新: ${formatTime(new Date())}`;
   
   // 每5分钟更新一次天气数据
-  setTimeout(updateWeatherData, 300000);
+  setTimeout(updateWeatherData, 600);
 }
 
 // 初始化天气数据

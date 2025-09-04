@@ -1,5 +1,5 @@
-{
-  "ledD4": 0 或 1,
-  "ledD5": 0 或 1,
-  "pwm": 數值
+status: {
+  "ledD4": 0,
+  "ledD5": 0,
+  "pwm": 0
 }

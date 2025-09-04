@@ -6,66 +6,390 @@
 <title>ESP 控制面板</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* CSS 與原本相同，可省略 */
+  :root {
+    --primary: #00c6ff;
+    --secondary: #0072ff;
+    --dark-bg: #121212;
+    --card-bg: #1e1e1e;
+    --text-primary: #f0f0f0;
+    --text-secondary: #a0a0a0;
+    --success: #00c853;
+    --danger: #ff3d00;
+    --warning: #ffab00;
+    --temp-color: #ff6b6b;
+    --hum-color: #4ecdc4;
+    --border-radius: 16px;
+    --transition: all 0.3s ease;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  
+  body {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+  }
+  
+  h1 {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(0, 198, 255, 0.2);
+  }
+  
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    margin-top: 10px;
+  }
+  
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+  }
+  
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  }
+  
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1.5rem;
+  }
+  
+  .temp-card .card-icon {
+    background: linear-gradient(135deg, var(--temp-color), #ff8e8e);
+  }
+  
+  .card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  
+  .control-group {
+    margin-bottom: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .btn {
+    padding: 14px 25px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+  }
+  
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(0, 198, 255, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+  }
+  
+  .btn-danger:hover {
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  .slider-container {
+    width: 100%;
+    margin: 15px 0;
+  }
+  
+  .slider-value {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 15px 0;
+    color: var(--primary);
+  }
+  
+  .temp-value {
+    color: var(--temp-color);
+    font-size: 2.5rem;
+  }
+  
+  .hum-value {
+    color: var(--hum-color);
+    font-size: 2.5rem;
+  }
+  
+  .sensor-data {
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+  }
+  
+  .sensor-item {
+    text-align: center;
+    padding: 15px;
+  }
+  
+  .sensor-label {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 12px;
+    border-radius: 10px;
+    background: #333;
+    outline: none;
+    margin: 20px 0;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+    transition: var(--transition);
+  }
+  
+  .slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+  
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .status-connected {
+    background: var(--success);
+    box-shadow: 0 0 10px var(--success);
+  }
+  
+  .status-disconnected {
+    background: var(--danger);
+    box-shadow: 0 0 10px var(--danger);
+  }
+  
+  .pulse-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-left: 10px;
+    background: var(--warning);
+    box-shadow: 0 0 10px var(--warning);
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+  }
+  
+  .last-update {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: right;
+    margin-top: 10px;
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding: 15px;
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard {
+      grid-template-columns: 1fr;
+    }
+    
+    h1 {
+      font-size: 2.2rem;
+    }
+    
+    .sensor-data {
+      flex-direction: column;
+    }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>ESP 控制面板</h1>
-    <p class="subtitle">远程监控与控制设备</p>
-  </header>
-
-  <div class="dashboard">
-    <!-- D4 控制 -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
-        <h2 class="card-title">D4 输出控制</h2>
+  <div class="container">
+    <header>
+      <h1>ESP32 智能控制面板</h1>
+      <p class="subtitle">远程监控与设备控制</p>
+    </header>
+    
+    <div class="dashboard">
+      <!-- DHT22 溫濕度 - 放在第一格 -->
+      <div class="card temp-card">
+        <div class="card-header">
+          <div class="card-icon"><i class="fas fa-thermometer-half"></i></div>
+          <h2 class="card-title">溫濕度監測</h2>
+        </div>
+        <div class="control-group">
+          <div class="sensor-data">
+            <div class="sensor-item">
+              <div class="sensor-label"><i class="fas fa-temperature-high"></i> 溫度</div>
+              <div class="temp-value"><span id="tempVal">--.-</span> <small>℃</small></div>
+            </div>
+            <div class="sensor-item">
+              <div class="sensor-label"><i class="fas fa-tint"></i> 濕度</div>
+              <div class="hum-value"><span id="humVal">--.-</span> <small>%</small></div>
+            </div>
+          </div>
+          <div class="last-update" id="lastUpdate">最後更新: --</div>
+        </div>
       </div>
-      <div class="control-group">
-        <button id="d4Btn" class="btn btn-primary"><i class="fas fa-power-off"></i> 开启 D4</button>
+      
+      <!-- D4 控制 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
+          <h2 class="card-title">D4 輸出控制</h2>
+        </div>
+        <div class="control-group">
+          <button id="d4Btn" class="btn btn-primary"><i class="fas fa-power-off"></i> 開啟 D4</button>
+          <div class="status-indicator">
+            <div class="status-dot status-connected"></div>
+            <span>狀態: 已連接</span>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <!-- D5 脈衝 -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-bolt"></i></div>
-        <h2 class="card-title">D5 脉冲控制</h2>
+      
+      <!-- D5 脈衝 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon"><i class="fas fa-bolt"></i></div>
+          <h2 class="card-title">D5 脈衝控制</h2>
+        </div>
+        <div class="control-group">
+          <button id="d5Btn" class="btn btn-primary"><i class="fas fa-play"></i> 發送脈衝</button>
+          <div class="status-indicator">
+            <span>脈衝狀態: </span>
+            <div class="pulse-indicator"></div>
+          </div>
+        </div>
       </div>
-      <div class="control-group">
-        <button id="d5Btn" class="btn btn-primary"><i class="fas fa-play"></i> 发送脉冲</button>
-      </div>
-    </div>
-
-    <!-- PWM 控制 -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-sliders-h"></i></div>
-        <h2 class="card-title">PWM 调节器</h2>
-      </div>
-      <div class="control-group">
-        <div class="slider-value"><span id="pwmVal">0</span></div>
-        <div class="slider-container">
-          <input type="range" id="pwmSlider" class="slider" min="0" max="1023" value="0">
+      
+      <!-- PWM 控制 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon"><i class="fas fa-sliders-h"></i></div>
+          <h2 class="card-title">PWM 調節器</h2>
+        </div>
+        <div class="control-group">
+          <div class="slider-value"><span id="pwmVal">0</span></div>
+          <div class="slider-container">
+            <input type="range" id="pwmSlider" class="slider" min="0" max="1023" value="0">
+          </div>
+          <div class="status-indicator">
+            <span>PWM 輸出範圍: 0-1023</span>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- DHT22 溫濕度 -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-thermometer-half"></i></div>
-        <h2 class="card-title">溫濕度 (DHT22)</h2>
-      </div>
-      <div class="control-group">
-        <div class="slider-value">溫度: <span id="tempVal">--.-</span> ℃</div>
-        <div class="slider-value">濕度: <span id="humVal">--.-</span> %</div>
-      </div>
-    </div>
+    
+    <footer>
+      <p>ESP32 控制面板 &copy; 2023 | 物聯網設備遠程監控系統</p>
+    </footer>
   </div>
-</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
@@ -93,11 +417,17 @@ const pwmSlider = document.getElementById("pwmSlider");
 const pwmVal = document.getElementById("pwmVal");
 const tempVal = document.getElementById("tempVal");
 const humVal = document.getElementById("humVal");
+const lastUpdate = document.getElementById("lastUpdate");
+
+// 時間格式化函數
+function formatTime(date) {
+  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+}
 
 // 監聽 status
 onValue(statusRef, (snapshot) => {
   const data = snapshot.val() || {};
-  d4Btn.innerHTML = data.ledD4 ? '<i class="fas fa-power-off"></i> 关闭 D4' : '<i class="fas fa-power-off"></i> 开启 D4';
+  d4Btn.innerHTML = data.ledD4 ? '<i class="fas fa-power-off"></i> 關閉 D4' : '<i class="fas fa-power-off"></i> 開啟 D4';
   d4Btn.className = data.ledD4 ? 'btn btn-danger' : 'btn btn-primary';
   
   pwmSlider.value = data.pwm || 0;
@@ -107,8 +437,9 @@ onValue(statusRef, (snapshot) => {
 // 監聽 sensor
 onValue(sensorRef, (snapshot) => {
   const sensor = snapshot.val() || {};
-  tempVal.textContent = sensor.temp !== undefined ? sensor.temp : '--.-';
-  humVal.textContent = sensor.hum !== undefined ? sensor.hum : '--.-';
+  tempVal.textContent = sensor.temp !== undefined ? sensor.temp.toFixed(1) : '--.-';
+  humVal.textContent = sensor.hum !== undefined ? sensor.hum.toFixed(1) : '--.-';
+  lastUpdate.textContent = `最後更新: ${formatTime(new Date())}`;
 });
 
 // D4 開關
@@ -122,11 +453,11 @@ d4Btn.addEventListener("click", () => {
 
 // D5 脈衝
 d5Btn.addEventListener("click", () => {
-  d5Btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 发送中...';
+  d5Btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 發送中...';
   d5Btn.disabled = true;
   update(statusRef, { ledD5: 1 });
   setTimeout(() => {
-    d5Btn.innerHTML = '<i class="fas fa-play"></i> 发送脉冲';
+    d5Btn.innerHTML = '<i class="fas fa-play"></i> 發送脈衝';
     d5Btn.disabled = false;
   }, 2000);
 });

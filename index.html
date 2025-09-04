@@ -1,85 +1,127 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP 控制面板</title>
-<style>
-  body { font-family: Arial; text-align: center; margin-top: 50px; }
-  button { padding: 10px 20px; font-size: 16px; margin: 10px; }
-  input[type=range] { width: 300px; }
-</style>
-</head>
-<body>
-<h1>ESP 控制面板</h1>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <ArduinoJson.h>
 
-<!-- 控制按鈕 -->
-<button id="d4Btn">D4 開</button>
-<button id="d5Btn">D5 觸發脈衝</button>
-<br><br>
+// ===== WiFi 設定 =====
+const char* ssid     = "dlink-21b";
+const char* password = "0980253945";
 
-<!-- PWM 控制 -->
-<label for="pwmSlider">PWM: <span id="pwmVal">0</span></label><br>
-<input type="range" id="pwmSlider" min="0" max="1023" value="0">
+// ===== Firebase Realtime Database =====
+const char* firebaseURL = "https://of11-bf42c-default-rtdb.firebaseio.com/status.json?auth=BIyPl1KhSGcPBL5rrIjrNFtYZCAUzFe9icAYrEFeBg8GER5cBPMxHzx43S-Xo4szVkMefZE6pe7lHI95UpdX-7c";
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+// ===== GPIO 設定 =====
+const uint8_t D4_PIN = 2;   // NodeMCU D4
+const uint8_t D5_PIN = 14;  // NodeMCU D5
+const uint8_t PWM_PIN = 5;  // NodeMCU D1 (PWM)
 
-// ===== Firebase 設定 =====
-const firebaseConfig = {
-  apiKey: "你的APIKey",
-  authDomain: "of11-bf42c.firebaseapp.com",
-  databaseURL: "https://of11-bf42c-default-rtdb.firebaseio.com",
-  projectId: "of11-bf42c",
-  storageBucket: "of11-bf42c.appspot.com",
-  messagingSenderId: "933992597092",
-  appId: "1:933992597092:web:d53c1b037855828cc34171"
-};
+// ===== 狀態追蹤 =====
+int lastD4 = -1;
+int lastPwm = -1;
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+WiFiClientSecure client;
+HTTPClient http;
 
-// 指向 status 節點
-const statusRef = ref(db, 'status');
+// ===== D5 脈衝函式 =====
+void pulseD5() {
+  digitalWrite(D5_PIN, LOW);   // 低電位 0.5 秒
+  delay(500);
+  digitalWrite(D5_PIN, HIGH);  // 高電位 0.5 秒
+  delay(500);
+}
 
-// DOM 元素
-const d4Btn = document.getElementById("d4Btn");
-const d5Btn = document.getElementById("d5Btn");
-const pwmSlider = document.getElementById("pwmSlider");
-const pwmVal = document.getElementById("pwmVal");
+// ===== Firebase 只更新單一欄位函式 =====
+void updateFirebaseField(const char* key, int value) {
+  DynamicJsonDocument doc(128);
+  doc[key] = value;
+  String payload;
+  serializeJson(doc, payload);
 
-// 監聽 Firebase 狀態更新
-onValue(statusRef, (snapshot) => {
-  const data = snapshot.val() || {};
+  http.begin(client, firebaseURL);
+  http.addHeader("Content-Type", "application/json");
+  http.PUT(payload);  // PATCH 模式，只更新 key
+  http.end();
+}
 
-  // D4 按鈕文字
-  d4Btn.textContent = data.ledD4 ? "D4 關" : "D4 開";
+void setup() {
+  Serial.begin(115200);
+  delay(10);
 
-  // PWM 滑桿
-  pwmSlider.value = data.pwm || 0;
-  pwmVal.textContent = data.pwm || 0;
-});
+  // 設定 GPIO
+  pinMode(D4_PIN, OUTPUT);
+  pinMode(D5_PIN, OUTPUT);
+  pinMode(PWM_PIN, OUTPUT);
 
-// --- D4 按鈕開關 ---
-d4Btn.addEventListener("click", () => {
-  onValue(statusRef, (snapshot) => {
-    const data = snapshot.val() || {};
-    const newD4 = data.ledD4 ? 0 : 1;
-    update(statusRef, { ledD4: newD4 });  // 只更新 D4
-  }, { onlyOnce: true });
-});
+  digitalWrite(D4_PIN, LOW);   // D4 預設關
+  digitalWrite(D5_PIN, HIGH);  // D5 預設高電位
+  analogWriteRange(1023);
+  analogWriteFreq(1000);
+  analogWrite(PWM_PIN, 0);
 
-// --- D5 按鈕觸發單次脈衝 ---
-d5Btn.addEventListener("click", () => {
-  update(statusRef, { ledD5: 1 });  // ESP 看到 1 時會執行短脈衝
-});
+  // 連線 WiFi
+  Serial.printf("Connecting to WiFi %s ...\n", ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("WiFi connected! IP: ");
+  Serial.println(WiFi.localIP());
 
-// --- PWM 控制 ---
-pwmSlider.addEventListener("input", () => {
-  pwmVal.textContent = pwmSlider.value;
-  update(statusRef, { pwm: parseInt(pwmSlider.value) }); // 只更新 PWM
-});
-</script>
-</body>
-</html>
+  client.setInsecure(); // HTTPS 測試用，不驗證憑證
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    http.begin(client, firebaseURL);
+    int httpCode = http.GET();
+
+    if (httpCode == 200) {
+      String payload = http.getString();
+      DynamicJsonDocument doc(512);
+      DeserializationError error = deserializeJson(doc, payload);
+
+      if (!error) {
+        // 讀取 status 節點
+        JsonObject status = doc.as<JsonObject>();
+
+        int ledD4 = status["ledD4"] | 0;
+        int ledD5 = status["ledD5"] | 0;
+        int pwmVal = status["pwm"] | 0;
+
+        // ===== D4 控制 =====
+        if (ledD4 != lastD4) {
+          digitalWrite(D4_PIN, ledD4 ? HIGH : LOW);
+          lastD4 = ledD4;
+          Serial.printf("D4: %s\n", ledD4 ? "ON" : "OFF");
+        }
+
+        // ===== D5 脈衝觸發 =====
+        if (ledD5 == 1) {
+          Serial.println("Trigger D5 pulse");
+          pulseD5();
+          // 脈衝完成後只回寫 ledD5 = 0，不影響其他欄位
+          updateFirebaseField("ledD5", 0);
+        }
+
+        // ===== PWM 控制 =====
+        if (pwmVal != lastPwm) {
+          analogWrite(PWM_PIN, pwmVal);
+          lastPwm = pwmVal;
+          Serial.printf("PWM: %d\n", pwmVal);
+        }
+
+      } else {
+        Serial.println("❌ JSON parse error");
+      }
+    } else {
+      Serial.printf("❌ HTTP GET failed: %d\n", httpCode);
+    }
+
+    http.end();
+  } else {
+    Serial.println("⚠️ WiFi disconnected!");
+  }
+
+  delay(1000); // 每秒抓一次 Firebase
+}

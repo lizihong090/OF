@@ -6,7 +6,7 @@
 <title>ESP 控制面板</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* 這裡省略 CSS，與你原本 CSS 相同 */
+  /* CSS 與原本相同，可省略 */
 </style>
 </head>
 <body>
@@ -60,8 +60,8 @@
         <h2 class="card-title">溫濕度 (DHT22)</h2>
       </div>
       <div class="control-group">
-        <div class="slider-value">溫度: <span id="tempVal">--</span> ℃</div>
-        <div class="slider-value">濕度: <span id="humVal">--</span> %</div>
+        <div class="slider-value">溫度: <span id="tempVal">--.-</span> ℃</div>
+        <div class="slider-value">濕度: <span id="humVal">--.-</span> %</div>
       </div>
     </div>
   </div>
@@ -85,6 +85,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const statusRef = ref(db, 'status');
+const sensorRef = ref(db, 'sensor');
 
 const d4Btn = document.getElementById("d4Btn");
 const d5Btn = document.getElementById("d5Btn");
@@ -93,22 +94,21 @@ const pwmVal = document.getElementById("pwmVal");
 const tempVal = document.getElementById("tempVal");
 const humVal = document.getElementById("humVal");
 
-// 監聽 Firebase 更新
+// 監聽 status
 onValue(statusRef, (snapshot) => {
   const data = snapshot.val() || {};
-
-  // D4
   d4Btn.innerHTML = data.ledD4 ? '<i class="fas fa-power-off"></i> 关闭 D4' : '<i class="fas fa-power-off"></i> 开启 D4';
   d4Btn.className = data.ledD4 ? 'btn btn-danger' : 'btn btn-primary';
-
-  // PWM
+  
   pwmSlider.value = data.pwm || 0;
   pwmVal.textContent = data.pwm || 0;
+});
 
-  // 溫濕度
-  const sensor = data.sensor || {};
-  tempVal.textContent = sensor.temp !== undefined ? sensor.temp : '--';
-  humVal.textContent = sensor.hum !== undefined ? sensor.hum : '--';
+// 監聽 sensor
+onValue(sensorRef, (snapshot) => {
+  const sensor = snapshot.val() || {};
+  tempVal.textContent = sensor.temp !== undefined ? sensor.temp : '--.-';
+  humVal.textContent = sensor.hum !== undefined ? sensor.hum : '--.-';
 });
 
 // D4 開關

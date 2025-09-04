@@ -1,9 +1,11 @@
-status: {
-  ledD4: 1,
-  ledD5: 0,
-  pwm: 512,
-}
-sensor: {
-    temp: 25.3,
-    hum: 60.5
+{
+  "status": {
+    "ledD4": 1,
+    "ledD5": 0,
+    "pwm": 512
+  },
+  "sensor": {
+    "temp": "--.-",
+    "hum": "--.-"
+  }
 }

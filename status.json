@@ -1,5 +1,9 @@
 status: {
-  "ledD4": 0,
-  "ledD5": 0,
-  "pwm": 0
+  ledD4: 1,
+  ledD5: 0,
+  pwm: 512,
+  sensor: {
+    temp: 25.3,
+    hum: 60.5
+  }
 }

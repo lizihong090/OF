@@ -70,10 +70,16 @@ d4Btn.addEventListener("click", () => {
   }, { onlyOnce: true });
 });
 
-// --- D5 按鈕觸發單次脈衝 ---
-d5Btn.addEventListener("click", () => {
-  update(statusRef, { ledD5: 1 });  // ESP 看到 1 時會執行低脈衝
+// D5 按鈕觸發單次脈衝
+d5Btn.addEventListener("click", async () => {
+  try {
+    await update(statusRef, { ledD5: 1 }); // ✅ 只更新 ledD5
+    console.log("D5 脈衝已觸發");
+  } catch (err) {
+    console.error("Firebase update error:", err);
+  }
 });
+
 
 // --- PWM 控制 ---
 pwmSlider.addEventListener("input", () => {

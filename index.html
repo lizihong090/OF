@@ -1,4 +1,4 @@
-幫我將<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -6,473 +6,191 @@
 <title>雲林溫度電腦控制面板 - 虎尾</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  :root {
-    --primary: #00c6ff;
-    --secondary: #0072ff;
-    --dark-bg: #121212;
-    --card-bg: #1e1e1e;
-    --text-primary: #f0f0f0;
-    --text-secondary: #a0a0a0;
-    --success: #00c853;
-    --danger: #ff3d00;
-    --warning: #ffab00;
-    --temp-color: #ff6b6b;
-    --hum-color: #4ecdc4;
-    --weather-color: #6c5ce7;
-    --border-radius: 16px;
-    --transition: all 0.3s ease;
-  }
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Arial, sans-serif;
-  }
-  
-  body {
-    background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
-    color: var(--text-primary);
-    min-height: 100vh;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .container {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  
-  header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding: 20px;
-  }
-  
-  h1 {
-    font-size: 2.8rem;
-    margin-bottom: 10px;
-    background: linear-gradient(to right, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 10px rgba(0, 198, 255, 0.2);
-  }
-  
-  .subtitle {
-    color: var(--text-secondary);
-    font-size: 1.2rem;
-    margin-top: 10px;
-  }
-  
-  .dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 30px;
-  }
-  
-  .card {
-    background: var(--card-bg);
-    border-radius: var(--border-radius);
-    padding: 25px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    transition: var(--transition);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-  }
-  
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-  }
-  
-  .weather-card::before {
-    background: linear-gradient(to right, var(--weather-color), #a29bfe);
-  }
-  
-  .temp-card::before {
-    background: linear-gradient(to right, var(--temp-color), #ff8e8e);
-  }
-  
-  .card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .card-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    font-size: 1.5rem;
-  }
-  
-  .weather-card .card-icon {
-    background: linear-gradient(135deg, var(--weather-color), #a29bfe);
-  }
-  
-  .temp-card .card-icon {
-    background: linear-gradient(135deg, var(--temp-color), #ff8e8e);
-  }
-  
-  .card-title {
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
-  
-  .control-group {
-    margin-bottom: 20px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  .btn {
-    padding: 14px 25px;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .btn-primary {
-    background: linear-gradient(to right, var(--primary), var(--secondary));
-    color: white;
-    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
-  }
-  
-  .btn-primary:hover {
-    box-shadow: 0 6px 20px rgba(0, 198, 255, 0.4);
-    transform: translateY(-2px);
-  }
-  
-  .btn-danger {
-    background: var(--danger);
-    color: white;
-    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
-  }
-  
-  .btn-danger:hover {
-    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
-    transform: translateY(-2px);
-  }
-  
-  .slider-container {
-    width: 100%;
-    margin: 15px 0;
-  }
-  
-  .slider-value {
-    text-align: center;
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin: 15px 0;
-  }
-  
-  .temp-value {
-    color: var(--temp-color);
-    font-size: 2.5rem;
-  }
-  
-  .hum-value {
-    color: var(--hum-color);
-    font-size: 2.5rem;
-  }
-  
-  .weather-value {
-    color: var(--weather-color);
-    font-size: 2.5rem;
-  }
-  
-  .sensor-data {
-    display: flex;
-    justify-content: space-around;
-    margin: 15px 0;
-  }
-  
-  .sensor-item {
-    text-align: center;
-    padding: 15px;
-  }
-  
-  .sensor-label {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
-  }
-  
-  .weather-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 15px 0;
-  }
-  
-  .weather-icon {
-    font-size: 4rem;
-    margin-bottom: 15px;
-    color: var(--weather-color);
-  }
-  
-  .weather-details {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin-top: 15px;
-  }
-  
-  .weather-detail {
-    text-align: center;
-  }
-  
-  .weather-detail .value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--weather-color);
-    margin-bottom: 5px;
-  }
-  
-  .weather-detail .label {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-  }
-  
-  .slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 12px;
-    border-radius: 10px;
-    background: #333;
-    outline: none;
-    margin: 20px 0;
-  }
-  
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
-    transition: var(--transition);
-  }
-  
-  .slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-  }
-  
-  .status-indicator {
-    display: flex;
-    align-items: center;
-    margin-top: 15px;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-  }
-  
-  .status-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 10px;
-  }
-  
-  .status-connected {
-    background: var(--success);
-    box-shadow: 0 0 10px var(--success);
-  }
-  
-  .status-disconnected {
-    background: var(--danger);
-    box-shadow: 0 0 10px var(--danger);
-  }
-  
-  .pulse-indicator {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    margin-left: 10px;
-    background: var(--warning);
-    box-shadow: 0 0 10px var(--warning);
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.4; }
-    100% { opacity: 1; }
-  }
-  
-  .last-update {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    text-align: right;
-    margin-top: 10px;
-  }
-  
-  footer {
-    text-align: center;
-    margin-top: 40px;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    padding: 15px;
-  }
-  
-  @media (max-width: 768px) {
-    .dashboard {
-      grid-template-columns: 1fr;
-    }
-    
-    h1 {
-      font-size: 2.2rem;
-    }
-    
-    .sensor-data, .weather-details {
-      flex-direction: column;
-    }
-  }
+:root {
+  --primary: #00c6ff;
+  --secondary: #0072ff;
+  --dark-bg: #121212;
+  --card-bg: #1e1e1e;
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --success: #00c853;
+  --danger: #ff3d00;
+  --warning: #ffab00;
+  --temp-color: #ff6b6b;
+  --hum-color: #4ecdc4;
+  --weather-color: #6c5ce7;
+  --border-radius: 16px;
+  --transition: all 0.3s ease;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+body {
+  background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.container { width: 100%; max-width: 1100px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 30px; padding: 20px; }
+h1 {
+  font-size: 2.8rem;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(0,198,255,0.2);
+}
+.subtitle { color: var(--text-secondary); font-size: 1.2rem; margin-top: 10px; }
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+.card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+.card::before { content: ''; position: absolute; top:0; left:0; right:0; height:4px; }
+.weather-card::before { background: linear-gradient(to right, var(--weather-color), #a29bfe); }
+.temp-card::before { background: linear-gradient(to right, var(--temp-color), #ff8e8e); }
+.card-header { display: flex; align-items: center; margin-bottom: 20px; }
+.card-icon { width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-right:15px; font-size:1.5rem; }
+.weather-card .card-icon { background: linear-gradient(135deg, var(--weather-color), #a29bfe); }
+.temp-card .card-icon { background: linear-gradient(135deg, var(--temp-color), #ff8e8e); }
+.card-title { font-size: 1.4rem; font-weight: 600; }
+.control-group { margin-bottom: 20px; flex-grow:1; display:flex; flex-direction:column; justify-content:center; }
+.btn { padding: 14px 25px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight:600; cursor:pointer; transition: var(--transition); display:flex; align-items:center; justify-content:center; gap:10px; }
+.btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); color:white; box-shadow: 0 4px 15px rgba(0,198,255,0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,198,255,0.4); }
+.btn-danger { background: var(--danger); color:white; box-shadow:0 4px 15px rgba(255,61,0,0.3); }
+.btn-danger:hover { transform: translateY(-2px); box-shadow:0 6px 20px rgba(255,61,0,0.4); }
+.slider-container { width:100%; margin:15px 0; }
+.slider-value { text-align:center; font-size:2.2rem; font-weight:700; margin:15px 0; }
+.temp-value { color: var(--temp-color); font-size:2.5rem; }
+.hum-value { color: var(--hum-color); font-size:2.5rem; }
+.weather-value { color: var(--weather-color); font-size:2.5rem; }
+.sensor-data { display:flex; justify-content:space-around; margin:15px 0; }
+.sensor-item { text-align:center; padding:15px; }
+.sensor-label { font-size:1.1rem; color:var(--text-secondary); margin-bottom:8px; }
+.weather-info { display:flex; flex-direction:column; align-items:center; margin:15px 0; }
+.weather-icon { font-size:4rem; margin-bottom:15px; color:var(--weather-color); }
+.weather-details { display:flex; justify-content:space-around; width:100%; margin-top:15px; }
+.weather-detail { text-align:center; }
+.weather-detail .value { font-size:1.5rem; font-weight:700; color:var(--weather-color); margin-bottom:5px; }
+.weather-detail .label { font-size:0.9rem; color:var(--text-secondary); }
+.slider { -webkit-appearance:none; width:100%; height:12px; border-radius:10px; background:#333; outline:none; margin:20px 0; }
+.slider::-webkit-slider-thumb { -webkit-appearance:none; width:28px; height:28px; border-radius:50%; background:var(--primary); cursor:pointer; box-shadow:0 0 15px rgba(0,198,255,0.5); transition:var(--transition); }
+.slider::-webkit-slider-thumb:hover { transform:scale(1.2); }
+.status-indicator { display:flex; align-items:center; margin-top:15px; font-size:0.9rem; color:var(--text-secondary); }
+.status-dot { width:12px; height:12px; border-radius:50%; margin-right:10px; }
+.status-connected { background: var(--success); box-shadow:0 0 10px var(--success); }
+.status-disconnected { background: var(--danger); box-shadow:0 0 10px var(--danger); }
+.pulse-indicator { width:20px; height:20px; border-radius:50%; margin-left:10px; background:var(--warning); box-shadow:0 0 10px var(--warning); animation:pulse 2s infinite; }
+@keyframes pulse {0%{opacity:1;}50%{opacity:0.4;}100%{opacity:1;}}
+.last-update { font-size:0.8rem; color:var(--text-secondary); text-align:right; margin-top:10px; }
+footer { text-align:center; margin-top:40px; color:var(--text-secondary); font-size:0.9rem; padding:15px; }
+@media (max-width:768px){
+  .dashboard { grid-template-columns:1fr; }
+  h1 { font-size:2.2rem; }
+  .sensor-data, .weather-details { flex-direction:column; }
+}
 </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>ESP32 智能控制面板</h1>
-      <p class="subtitle">虎尾 - 遠程監控與設備控制</p>
-    </header>
-    
-    <div class="dashboard">
-      <!-- 云林虎尾天气信息 - 放在第一格 -->
-      <div class="card weather-card">
-        <div class="card-header">
-          <div class="card-icon"><i class="fas fa-cloud-sun"></i></div>
-          <h2 class="card-title">雲林虎尾天氣</h2>
-        </div>
-        <div class="control-group">
-          <div class="weather-info">
-            <div class="weather-icon">
-              <i class="fas fa-sun" id="weatherIcon"></i>
-            </div>
-            <div class="weather-value"><span id="weatherTemp">26.5</span> <small>℃</small></div>
-            <div class="sensor-label" id="weatherDesc">晴朗</div>
-          </div>
-          <div class="weather-details">
-            <div class="weather-detail">
-              <div class="value"><span id="weatherHumidity">65</span>%</div>
-              <div class="label">濕度</div>
-            </div>
-            <div class="weather-detail">
-              <div class="value"><span id="weatherWind">3.2</span> m/s</div>
-              <div class="label">風速</div>
-            </div>
-            <div class="weather-detail">
-              <div class="value" id="weatherPressure">1013</div>
-              <div class="label">氣壓 (hPa)</div>
-            </div>
-          </div>
-          <div class="last-update" id="weatherUpdate">最後更新: 剛剛/div>
-        </div>
+<div class="container">
+  <header>
+    <h1>ESP32 智能控制面板</h1>
+    <p class="subtitle">虎尾 - 遠程監控與設備控制</p>
+  </header>
+  
+  <div class="dashboard">
+    <!-- 天氣卡片 -->
+    <div class="card weather-card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-cloud-sun"></i></div>
+        <h2 class="card-title">雲林虎尾天氣</h2>
       </div>
-      
-      <!-- DHT22 溫濕度 -->
-      <div class="card temp-card">
-        <div class="card-header">
-          <div class="card-icon"><i class="fas fa-thermometer-half"></i></div>
-          <h2 class="card-title">室內溫濕度</h2>
+      <div class="control-group">
+        <div class="weather-info">
+          <div class="weather-icon"><i class="fas fa-sun" id="weatherIcon"></i></div>
+          <div class="weather-value"><span id="weatherTemp">26.5</span> <small>℃</small></div>
+          <div class="sensor-label" id="weatherDesc">晴朗</div>
         </div>
-        <div class="control-group">
-          <div class="sensor-data">
-            <div class="sensor-item">
-              <div class="sensor-label"><i class="fas fa-temperature-high"></i> 溫度</div>
-              <div class="temp-value"><span id="tempVal">--.-</span> <small>℃</small></div>
-            </div>
-            <div class="sensor-item">
-              <div class="sensor-label"><i class="fas fa-tint"></i> 濕度</div>
-              <div class="hum-value"><span id="humVal">--.-</span> <small>%</small></div>
-            </div>
-          </div>
-          <div class="last-update" id="lastUpdate">最後更新: --</div>
+        <div class="weather-details">
+          <div class="weather-detail"><div class="value"><span id="weatherHumidity">65</span>%</div><div class="label">濕度</div></div>
+          <div class="weather-detail"><div class="value"><span id="weatherWind">3.2</span> m/s</div><div class="label">風速</div></div>
+          <div class="weather-detail"><div class="value" id="weatherPressure">1013</div><div class="label">氣壓 (hPa)</div></div>
         </div>
-      </div>
-      
-      <!-- D4 控制 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
-          <h2 class="card-title">電腦 輸出控制</h2>
-        </div>
-        <div class="control-group">
-          <button id="d4Btn" class="btn btn-primary"><i class="fas fa-power-off"></i> 開啟 D4</button>
-          <div class="status-indicator">
-            <div class="status-dot status-connected"></div>
-            <span>狀態: 已連接</span>
-          </div>
-        </div>
-      </div>
-      
-      <!-- D5 脈衝 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon"><i class="fas fa-bolt"></i></div>
-          <h2 class="card-title">藍芽 開關控制</h2>
-        </div>
-        <div class="control-group">
-          <button id="d5Btn" class="btn btn-primary"><i class="fas fa-play"></i> 開/關</button>
-          <div class="status-indicator">
-            <span>狀態: </span>
-            <div class="pulse-indicator"></div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- PWM 控制 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon"><i class="fas fa-sliders-h"></i></div>
-          <h2 class="card-title">PWM 調節器</h2>
-        </div>
-        <div class="control-group">
-          <div class="slider-value"><span id="pwmVal">0</span></div>
-          <div class="slider-container">
-            <input type="range" id="pwmSlider" class="slider" min="0" max="1023" value="0">
-          </div>
-          <div class="status-indicator">
-            <span>PWM 輸出範圍: 0-1023</span>
-          </div>
-        </div>
+        <div class="last-update" id="weatherUpdate">最後更新: 剛剛</div>
       </div>
     </div>
-    
-    <footer>
-      <p>控制面板 &copy; ❤️ | 雲林虎尾 - 物聯網設備遠程監控系統</p>
-    </footer>
+
+    <!-- DHT22 卡片 -->
+    <div class="card temp-card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-thermometer-half"></i></div>
+        <h2 class="card-title">室內溫濕度</h2>
+      </div>
+      <div class="control-group">
+        <div class="sensor-data">
+          <div class="sensor-item"><div class="sensor-label"><i class="fas fa-temperature-high"></i> 溫度</div><div class="temp-value"><span id="tempVal">--.-</span> <small>℃</small></div></div>
+          <div class="sensor-item"><div class="sensor-label"><i class="fas fa-tint"></i> 濕度</div><div class="hum-value"><span id="humVal">--.-</span> <small>%</small></div></div>
+        </div>
+        <div class="last-update" id="lastUpdate">最後更新: --</div>
+      </div>
+    </div>
+
+    <!-- D4 控制 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
+        <h2 class="card-title">電腦 輸出控制</h2>
+      </div>
+      <div class="control-group">
+        <button id="d4Btn" class="btn btn-primary"><i class="fas fa-power-off"></i> 開啟 D4</button>
+        <div class="status-indicator"><div class="status-dot status-connected"></div><span>狀態: 已連接</span></div>
+      </div>
+    </div>
+
+    <!-- D5 脈衝 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-bolt"></i></div>
+        <h2 class="card-title">藍芽 開關控制</h2>
+      </div>
+      <div class="control-group">
+        <button id="d5Btn" class="btn btn-primary"><i class="fas fa-play"></i> 開/關</button>
+        <div class="status-indicator"><span>狀態: </span><div class="pulse-indicator"></div></div>
+      </div>
+    </div>
+
+    <!-- PWM 控制 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-sliders-h"></i></div>
+        <h2 class="card-title">PWM 調節器</h2>
+      </div>
+      <div class="control-group">
+        <div class="slider-value"><span id="pwmVal">0</span></div>
+        <div class="slider-container"><input type="range" id="pwmSlider" class="slider" min="0" max="1023" value="0"></div>
+        <div class="status-indicator"><span>PWM 輸出範圍: 0-1023</span></div>
+      </div>
+    </div>
   </div>
+
+  <footer>
+    <p>控制面板 &copy; ❤️ | 雲林虎尾 - 物聯網設備遠程監控系統</p>
+  </footer>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
@@ -502,7 +220,6 @@ const tempVal = document.getElementById("tempVal");
 const humVal = document.getElementById("humVal");
 const lastUpdate = document.getElementById("lastUpdate");
 
-// 天气元素
 const weatherTemp = document.getElementById("weatherTemp");
 const weatherHumidity = document.getElementById("weatherHumidity");
 const weatherWind = document.getElementById("weatherWind");
@@ -511,89 +228,66 @@ const weatherDesc = document.getElementById("weatherDesc");
 const weatherIcon = document.getElementById("weatherIcon");
 const weatherUpdate = document.getElementById("weatherUpdate");
 
-// 時間格式化函數
-function formatTime(date) {
-  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+function formatTime(date){
+  return `${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}:${date.getSeconds().toString().padStart(2,'0')}`;
 }
 
-// 模拟天气数据更新（实际应用中应该使用天气API）
-function updateWeatherData() {
-  // 生成随机但合理的天气数据
-  const temp = (Math.random() * 10 + 20).toFixed(1); // 20-30度
-  const humidity = Math.floor(Math.random() * 30 + 60); // 60-90%
-  const wind = (Math.random() * 5).toFixed(1); // 0-5 m/s
-  const pressure = Math.floor(Math.random() * 20 + 1000); // 1000-1020 hPa
+function updateWeatherData(){
+  const temp = (Math.random()*10+20).toFixed(1);
+  const humidity = Math.floor(Math.random()*30+60);
+  const wind = (Math.random()*5).toFixed(1);
+  const pressure = Math.floor(Math.random()*20+1000);
   
-  // 更新DOM
-  weatherTemp.textContent = temp;
-  weatherHumidity.textContent = humidity;
-  weatherWind.textContent = wind;
-  weatherPressure.textContent = pressure;
+  weatherTemp.textContent=temp;
+  weatherHumidity.textContent=humidity;
+  weatherWind.textContent=wind;
+  weatherPressure.textContent=pressure;
   
-  // 根据温度设置天气描述和图标
-  if (temp > 28) {
-    weatherDesc.textContent = "晴朗炎熱";
-    weatherIcon.className = "fas fa-sun";
-  } else if (temp > 25) {
-    weatherDesc.textContent = "晴朗";
-    weatherIcon.className = "fas fa-cloud-sun";
-  } else {
-    weatherDesc.textContent = "多雲";
-    weatherIcon.className = "fas fa-cloud";
-  }
-  
-  weatherUpdate.textContent = `最后更新: ${formatTime(new Date())}`;
-  
-  // 每5分钟更新一次天气数据
-  setTimeout(updateWeatherData, 600);
-}
+  if(temp>28){ weatherDesc.textContent="晴朗炎熱"; weatherIcon.className="fas fa-sun"; }
+  else if(temp>25){ weatherDesc.textContent="晴朗"; weatherIcon.className="fas fa-cloud-sun"; }
+  else { weatherDesc.textContent="多雲"; weatherIcon.className="fas fa-cloud"; }
 
-// 初始化天气数据
+  weatherUpdate.textContent=`最後更新: ${formatTime(new Date())}`;
+}
 updateWeatherData();
+setInterval(updateWeatherData, 300000); // 5分鐘更新一次
 
-// 監聽 status
-onValue(statusRef, (snapshot) => {
-  const data = snapshot.val() || {};
-  d4Btn.innerHTML = data.ledD4 ? '<i class="fas fa-power-off"></i> 關閉 D4' : '<i class="fas fa-power-off"></i> 開啟 D4';
-  d4Btn.className = data.ledD4 ? 'btn btn-danger' : 'btn btn-primary';
-  
-  pwmSlider.value = data.pwm || 0;
-  pwmVal.textContent = data.pwm || 0;
+onValue(statusRef, snapshot=>{
+  const data = snapshot.val()||{};
+  d4Btn.innerHTML=data.ledD4?'<i class="fas fa-power-off"></i> 關閉 D4':'<i class="fas fa-power-off"></i> 開啟 D4';
+  d4Btn.className=data.ledD4?'btn btn-danger':'btn btn-primary';
+  pwmSlider.value=data.pwm||0;
+  pwmVal.textContent=data.pwm||0;
 });
 
-// 監聽 sensor
-onValue(sensorRef, (snapshot) => {
-  const sensor = snapshot.val() || {};
-  tempVal.textContent = sensor.temp !== undefined ? sensor.temp.toFixed(1) : '--.-';
-  humVal.textContent = sensor.hum !== undefined ? sensor.hum.toFixed(1) : '--.-';
-  lastUpdate.textContent = `最後更新: ${formatTime(new Date())}`;
+onValue(sensorRef, snapshot=>{
+  const sensor = snapshot.val()||{};
+  tempVal.textContent=sensor.temp!==undefined?sensor.temp.toFixed(1):'--.-';
+  humVal.textContent=sensor.hum!==undefined?sensor.hum.toFixed(1):'--.-';
+  lastUpdate.textContent=`最後更新: ${formatTime(new Date())}`;
 });
 
-// D4 開關
-d4Btn.addEventListener("click", () => {
-  onValue(statusRef, (snapshot) => {
-    const data = snapshot.val() || {};
-    const newD4 = data.ledD4 ? 0 : 1;
-    update(statusRef, { ledD4: newD4 });
-  }, { onlyOnce: true });
+d4Btn.addEventListener("click", ()=>{
+  onValue(statusRef, snapshot=>{
+    const data = snapshot.val()||{};
+    update(statusRef,{ledD4:data.ledD4?0:1});
+  },{onlyOnce:true});
 });
 
-// D5 脈衝
-d5Btn.addEventListener("click", () => {
-  d5Btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 發送中...';
-  d5Btn.disabled = true;
-  update(statusRef, { ledD5: 1 });
-  setTimeout(() => {
-    d5Btn.innerHTML = '<i class="fas fa-play"></i> 發送脈衝';
-    d5Btn.disabled = false;
-  }, 2000);
+d5Btn.addEventListener("click", ()=>{
+  d5Btn.innerHTML='<i class="fas fa-sync-alt fa-spin"></i> 發送中...';
+  d5Btn.disabled=true;
+  update(statusRef,{ledD5:1});
+  setTimeout(()=>{
+    d5Btn.innerHTML='<i class="fas fa-play"></i> 發送脈衝';
+    d5Btn.disabled=false;
+  },2000);
 });
 
-// PWM
-pwmSlider.addEventListener("input", () => {
-  pwmVal.textContent = pwmSlider.value;
-  update(statusRef, { pwm: parseInt(pwmSlider.value) });
+pwmSlider.addEventListener("input", ()=>{
+  pwmVal.textContent=pwmSlider.value;
+  update(statusRef,{pwm:parseInt(pwmSlider.value)});
 });
 </script>
 </body>
-</html>優化
+</html>

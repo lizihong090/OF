@@ -39,6 +39,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+// 指向 status 節點
 const statusRef = ref(db, 'status');
 
 // DOM 元素

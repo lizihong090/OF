@@ -24,7 +24,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 // ===== Firebase 設定 =====
 const firebaseConfig = {
@@ -64,25 +64,19 @@ d4Btn.addEventListener("click", () => {
   onValue(statusRef, (snapshot) => {
     const data = snapshot.val() || {};
     const newD4 = data.ledD4 ? 0 : 1;
-    set(statusRef, { ...data, ledD4: newD4 });
+    update(statusRef, { ledD4: newD4 });  // 只更新 D4
   }, { onlyOnce: true });
 });
 
 // --- D5 按鈕觸發單次脈衝 ---
 d5Btn.addEventListener("click", () => {
-  onValue(statusRef, (snapshot) => {
-    const data = snapshot.val() || {};
-    set(statusRef, { ...data, ledD5: 1 });  // ESP 看到 1 時會執行短脈衝
-  }, { onlyOnce: true });
+  update(statusRef, { ledD5: 1 });  // ESP 看到 1 時會執行短脈衝
 });
 
 // --- PWM 控制 ---
 pwmSlider.addEventListener("input", () => {
   pwmVal.textContent = pwmSlider.value;
-  onValue(statusRef, (snapshot) => {
-    const data = snapshot.val() || {};
-    set(statusRef, { ...data, pwm: parseInt(pwmSlider.value) });
-  }, { onlyOnce: true });
+  update(statusRef, { pwm: parseInt(pwmSlider.value) }); // 只更新 PWM
 });
 </script>
 </body>

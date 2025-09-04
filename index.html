@@ -13,12 +13,10 @@
 <body>
 <h1>ESP 控制面板</h1>
 
-<!-- 控制按鈕 -->
 <button id="d4Btn">D4 開</button>
-<button id="d5Btn">D5 觸發脈衝</button>
+<button id="d5Btn">D5 脈衝</button>
 <br><br>
 
-<!-- PWM 控制 -->
 <label for="pwmSlider">PWM: <span id="pwmVal">0</span></label><br>
 <input type="range" id="pwmSlider" min="0" max="1023" value="0">
 
@@ -26,7 +24,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
-// ===== Firebase 設定 =====
+// Firebase 設定
 const firebaseConfig = {
   apiKey: "你的APIKey",
   authDomain: "of11-bf42c.firebaseapp.com",
@@ -39,49 +37,36 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-// 指向 status 節點
 const statusRef = ref(db, 'status');
 
-// DOM 元素
 const d4Btn = document.getElementById("d4Btn");
 const d5Btn = document.getElementById("d5Btn");
 const pwmSlider = document.getElementById("pwmSlider");
 const pwmVal = document.getElementById("pwmVal");
 
-// 監聽 Firebase 狀態更新
+// 監聽 Firebase 更新
 onValue(statusRef, (snapshot) => {
   const data = snapshot.val() || {};
-
-  // D4 按鈕文字
   d4Btn.textContent = data.ledD4 ? "D4 關" : "D4 開";
-
-  // PWM 滑桿
   pwmSlider.value = data.pwm || 0;
   pwmVal.textContent = data.pwm || 0;
 });
 
-// --- D4 按鈕開關 ---
+// D4 開關
 d4Btn.addEventListener("click", () => {
   onValue(statusRef, (snapshot) => {
     const data = snapshot.val() || {};
     const newD4 = data.ledD4 ? 0 : 1;
-    update(statusRef, { ledD4: newD4 });  // 只更新 D4
+    update(statusRef, { ledD4: newD4 }); // 只更新 D4
   }, { onlyOnce: true });
 });
 
-// D5 按鈕觸發單次脈衝
-d5Btn.addEventListener("click", async () => {
-  try {
-    await update(statusRef, { ledD5: 1 }); // ✅ 只更新 ledD5
-    console.log("D5 脈衝已觸發");
-  } catch (err) {
-    console.error("Firebase update error:", err);
-  }
+// D5 脈衝
+d5Btn.addEventListener("click", () => {
+  update(statusRef, { ledD5: 1 }); // ESP 看到 1 時執行脈衝
 });
 
-
-// --- PWM 控制 ---
+// PWM
 pwmSlider.addEventListener("input", () => {
   pwmVal.textContent = pwmSlider.value;
   update(statusRef, { pwm: parseInt(pwmSlider.value) }); // 只更新 PWM
